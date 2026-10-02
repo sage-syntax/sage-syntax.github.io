@@ -1,6 +1,6 @@
 // SunScout Service Worker (DEV v1.0.0)
 const CACHE_NAME = 'sunscout-dev-v1.0.0';
-const ASSETS = ['./', './index.html', './manifest.json', '/assets/images/icon-sunscout-dev.svg'];
+const ASSETS = ['./', './index.html', './manifest.json', '/assets/images/sunscout/icon-sunscout-dev.svg', '/assets/images/sunscout/icon-sunscout-dev-180.png'];
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(ASSETS)));

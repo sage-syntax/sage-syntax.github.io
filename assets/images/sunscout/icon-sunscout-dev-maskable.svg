@@ -36,7 +36,8 @@
 
   <!-- Full-Bleed Outer Canvas -->
   <rect width="100" height="100" fill="url(#bg-grad)" />
-
+  <!-- Safe-Zone Scaled Group for Android Maskable Icons -->
+  <g transform="translate(15, 15) scale(0.7)">
     <!-- 3D Radiant Golden Sun Sphere -->
     <circle cx="50" cy="50" r="44" fill="url(#circle-grad)" filter="url(#soft-shadow)" />
     <circle cx="50" cy="50" r="44" fill="url(#sphere-light)" />
@@ -57,6 +58,7 @@
     <!-- Vector DEV Pill Badge (Zero Font Dependency) -->
     <rect x="48" y="73" width="46" height="21" rx="5" fill="#1c1917" stroke="#fde047" stroke-width="1.8"/>
     <path d="M 55.62 88 L 55.62 78.91 L 58.85 78.91 Q 60.26 78.91 61.26 79.46 Q 62.27 80.00 62.80 81.02 Q 63.33 82.04 63.33 83.44 Q 63.33 84.85 62.79 85.87 Q 62.26 86.90 61.24 87.45 Q 60.22 88 58.79 88 Z M 57.59 86.35 L 58.71 86.35 Q 59.69 86.35 60.32 86.01 Q 60.95 85.66 61.23 85.00 Q 61.51 84.35 61.51 83.44 Q 61.51 82.53 61.23 81.88 Q 60.95 81.23 60.33 80.89 Q 59.71 80.55 58.76 80.55 L 57.59 80.55 Z M 66.22 88 L 66.22 78.91 L 72.34 78.91 L 72.34 80.49 L 68.19 80.49 L 68.19 82.66 L 72.03 82.66 L 72.03 84.24 L 68.19 84.24 L 68.19 86.42 L 72.36 86.42 L 72.36 88 Z M 76.43 78.91 L 78.57 85.79 L 78.65 85.79 L 80.80 78.91 L 82.97 78.91 L 79.83 88 L 77.40 88 L 74.25 78.91 Z" fill="#fde047"/>
+  </g>
 
   <!-- Diagonal Glass Sheen Overlay -->
   <path d="M 0,0 L 0,100 L 30,100 L 70,0 Z" fill="url(#sheen-grad)" />
