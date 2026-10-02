@@ -1,17 +1,49 @@
 {
   "name": "SunScout",
   "short_name": "SunScout",
+  "description": "Daylight-aware window weather scoring and best sunny pocket finder",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#090f1d",
   "theme_color": "#090f1d",
+  "orientation": "any",
   "icons": [
     {
-      "src": "/assets/images/icon-sunscout.svg",
+      "src": "/assets/images/sunscout/icon-sunscout-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/sunscout/icon-sunscout-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/sunscout/icon-sunscout-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/sunscout/icon-sunscout-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/images/sunscout/icon-sunscout.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/sunscout/icon-sunscout-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
