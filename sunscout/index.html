@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>SunScout — Window Weather</title>
+  <script>
+    (function () {
+      try { localStorage.removeItem('sunscout_theme'); } catch (_e) {}
+      var isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+    })();
+  </script>
   <style>
   :root {
     --bg-app: #090f1d;
@@ -1070,55 +1077,115 @@
     box-shadow: var(--shadow-card);
     width: 100%;
     max-width: 440px;
-    padding: 1.25rem;
+    padding: 1.375rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.125rem;
     max-height: 90vh;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .modal-header-row {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .modal-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    min-width: 0;
+  }
+
+  .modal-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.015em;
+  }
+
+  .modal-subtitle {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+  }
+
+  .modal-icon-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .modal-icon-close:hover {
+    background: var(--border-subtle);
+    color: var(--text-primary);
   }
 
   .modal-section {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.75rem;
   }
 
   .modal-section-admin {
-    padding-top: 0.875rem;
+    padding-top: 1rem;
     border-top: 1px solid var(--border-subtle);
   }
 
-  .modal-section-header {
+  .modal-section-title {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+  }
+
+  .quota-status-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
   }
 
-  .modal-section-title {
-    font-size: 0.71875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
+  .quota-status-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    font-size: 0.78125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .quota-status-left svg {
+    color: var(--accent-sky);
+    flex-shrink: 0;
   }
 
   .modal-section-badge {
-    font-size: 0.6875rem;
+    font-family: var(--font-mono);
+    font-size: 0.71875rem;
     font-weight: 600;
-    color: var(--text-muted);
-    background: var(--bg-elevated);
-    padding: 0.125rem 0.5rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-subtle);
+    color: var(--text-primary);
+    white-space: nowrap;
   }
 
   .form-grid {
@@ -1128,13 +1195,63 @@
     align-items: end;
   }
 
+  .form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
   .form-field {
     display: flex;
     flex-direction: column;
     gap: 0.3125rem;
     min-width: 0;
     font-size: 0.78125rem;
+    font-weight: 600;
     color: var(--text-secondary);
+  }
+
+  .field-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .field-optional-tag {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .field-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.4375rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.65625rem;
+    font-weight: 700;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .field-status-pill.is-active {
+    background: var(--tier-prime-bg);
+    color: var(--tier-prime-text);
+    border-color: var(--tier-prime-border);
+  }
+
+  .field-hint {
+    font-size: 0.71875rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.35;
+  }
+
+  .field-hint code {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
   }
 
   .field-label-with-tip {
@@ -1193,22 +1310,95 @@
   .form-field select {
     width: 100%;
     min-width: 0;
-    padding: 0.4375rem 0.5625rem;
+    padding: 0.5rem 0.6875rem;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-strong);
     background: var(--bg-elevated);
     color: var(--text-primary);
+    font-size: 0.84375rem;
+    transition: border-color 0.15s ease;
+  }
+
+  .form-field input:focus {
+    outline: 2px solid var(--accent-sky);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  .passkey-config-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .passkey-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1875rem;
+    min-width: 0;
+  }
+
+  .passkey-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+
+  .passkey-title-row svg {
+    color: var(--accent-sun);
+    flex-shrink: 0;
+  }
+
+  .passkey-title {
+    font-size: 0.78125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .btn-compact {
+    padding: 0.375rem 0.6875rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .modal-status-msg {
+    font-size: 0.78125rem;
+    color: var(--accent-sky);
+    line-height: 1.35;
+    min-height: 0.25rem;
   }
 
   .modal-actions {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0.75rem;
-    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid var(--border-subtle);
   }
 
-  .modal-actions .btn {
-    width: 100%;
+  .modal-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-ghost-danger {
+    color: var(--text-muted);
+    padding: 0.4375rem 0.6875rem;
+    font-size: 0.78125rem;
+  }
+
+  .btn-ghost-danger:hover {
+    color: var(--score-poor);
+    border-color: rgba(248, 113, 113, 0.35);
   }
 
   .app-footer {
@@ -1293,7 +1483,7 @@
     }
   }
 
-  /* Device PIN Lock Screen */
+  /* Device PIN & Passkey Lock Screen */
   body.is-locked .app-shell {
     filter: blur(14px);
     pointer-events: none;
@@ -1377,10 +1567,18 @@
     background: var(--bg-elevated);
     color: var(--text-primary);
     font-family: var(--font-mono);
-    font-size: 1.35rem;
-    font-weight: 700;
-    letter-spacing: 0.35em;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
     text-align: center;
+  }
+
+  .lock-pin-input::placeholder {
+    letter-spacing: normal;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-muted);
   }
 
   .lock-pin-input:focus {
@@ -1388,11 +1586,22 @@
     outline-offset: 1px;
   }
 
-  .lock-submit-btn {
+  .lock-submit-btn,
+  .lock-passkey-btn {
     width: 100%;
     justify-content: center;
     padding: 0.6875rem 1rem;
     font-size: 0.9375rem;
+  }
+
+  .lock-passkey-btn {
+    background: var(--bg-elevated);
+    border-color: var(--border-strong);
+    color: var(--text-primary);
+  }
+
+  .lock-passkey-btn svg {
+    color: var(--accent-sun);
   }
 
   .lock-status {
@@ -1434,7 +1643,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span class="btn-text-desktop">Locate</span>
         </button>
-        <button type="button" class="btn btn-icon-mobile" data-action="toggle-theme" aria-label="Toggle light or dark theme" title="Toggle light or dark theme">
+        <button type="button" class="btn btn-icon-mobile" data-action="toggle-theme" aria-label="Toggle light or dark theme (resets to system on refresh)" title="Toggle light or dark theme (resets to system on refresh)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           <span class="btn-text-desktop">Theme</span>
         </button>
@@ -1513,8 +1722,13 @@
     <div id="ss-settings-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="ss-modal-title">
       <div class="modal-dialog">
         <div class="modal-header-row">
-          <h2 id="ss-modal-title" style="margin:0;font-size:1.05rem;">Settings</h2>
-          <button type="button" class="btn modal-close-btn" data-action="close-settings" aria-label="Close settings dialog">Close</button>
+          <div class="modal-title-group">
+            <h2 id="ss-modal-title" class="modal-title">Settings</h2>
+            <p class="modal-subtitle">Weather scoring thresholds, API quota &amp; device security</p>
+          </div>
+          <button type="button" class="modal-icon-close" data-action="close-settings" aria-label="Close settings dialog" title="Close">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
         </div>
 
         <div class="modal-section">
@@ -1543,34 +1757,62 @@
           </div>
         </div>
 
-        <div class="modal-section" style="border-top:1px solid var(--border-subtle);padding-top:0.75rem;">
-          <div class="modal-section-header">
-            <h3 class="modal-section-title">Cloud Admin (Optional)</h3>
-            <span id="cfg-quota-badge" class="modal-section-badge" title="Hard circuit-breaker caps usage at 240/day and 7,500/month (well below Google's 10,000/month free tier)">Quota: 0/240 d · 0/7,500 mo</span>
-          </div>
-          <div class="form-grid">
-            <div class="form-field">
-              <label for="cfg-admin-pin">Admin PIN</label>
-              <input id="cfg-admin-pin" type="password" inputmode="numeric" placeholder="4-digit PIN">
+        <div class="modal-section modal-section-admin">
+          <h3 class="modal-section-title">Cloud API &amp; Device Security</h3>
+
+          <div class="quota-status-card" title="Hard circuit-breaker caps usage at 240/day and 7,500/month (well below Google's 10,000/month free tier)">
+            <div class="quota-status-left">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              <span>API Quota Usage</span>
             </div>
+            <span id="cfg-quota-badge" class="modal-section-badge">0/240 d · 0/7,500 mo</span>
+          </div>
+
+          <div class="form-stack">
             <div class="form-field">
-              <label for="cfg-api-key">Weather API Key</label>
-              <input id="cfg-api-key" type="password" placeholder="AIza...">
+              <div class="field-label-row">
+                <label for="cfg-api-key">Google Weather API Key</label>
+                <span id="cfg-apikey-status-pill" class="field-status-pill">Demo Stream</span>
+              </div>
+              <input id="cfg-api-key" type="password" placeholder="AIza..." autocomplete="off">
+            </div>
+
+            <div class="form-field">
+              <div class="field-label-row">
+                <label for="cfg-admin-pin">Change Access PIN / Passcode</label>
+                <span class="field-optional-tag">Optional · 4–64 chars</span>
+              </div>
+              <input id="cfg-admin-pin" type="password" maxlength="64" placeholder="Leave blank to keep current PIN" autocomplete="new-password">
+              <span class="field-hint">Updating your PIN saves to the Google Sheet <code>Config</code> tab and signs out all other devices immediately.</span>
+            </div>
+
+            <div class="passkey-config-row">
+              <div class="passkey-info">
+                <div class="passkey-title-row">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+                  <span class="passkey-title">Passkey Unlock</span>
+                  <span id="cfg-passkey-badge" class="field-status-pill">Not set</span>
+                </div>
+                <span id="cfg-passkey-hint" class="field-hint">Sign in with Face ID, Touch ID, or device passkey instead of typing your PIN.</span>
+              </div>
+              <button type="button" id="cfg-register-passkey-btn" class="btn btn-compact" data-action="register-passkey">
+                <span>Register Passkey</span>
+              </button>
             </div>
           </div>
-          <small style="color:var(--text-muted);font-size:0.75rem;line-height:1.35;">
-            This device is unlocked. Leave PIN blank to save thresholds or API key directly, or enter a new PIN to verify.
-          </small>
-          <div id="cfg-modal-status" style="font-size:0.8125rem;color:var(--accent-sky);" role="status"></div>
+
+          <div id="cfg-modal-status" class="modal-status-msg" role="status" aria-live="polite"></div>
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn" data-action="lock-device" title="Sign out and lock SunScout on this device" style="margin-right:auto;color:var(--text-muted);">
+          <button type="button" class="btn btn-ghost-danger" data-action="lock-device" title="Sign out and lock SunScout on this device">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             <span>Lock Device</span>
           </button>
-          <button type="button" class="btn" data-action="close-settings">Cancel</button>
-          <button type="button" class="btn btn-primary" data-action="save-settings">Save Settings</button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn" data-action="close-settings">Cancel</button>
+            <button type="button" class="btn btn-primary" data-action="save-settings">Save Settings</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1599,29 +1841,31 @@
         </svg>
       </div>
       <h2 id="ss-lock-title" class="lock-title">SunScout</h2>
-      <p class="lock-subtitle">Enter your 4-digit PIN once to unlock live coastal &amp; window forecasts on this device.</p>
+      <p class="lock-subtitle">Enter your Access PIN or use a registered Passkey to unlock live forecasts on this device.</p>
       <div class="lock-form">
         <input
           id="ss-unlock-pin-input"
           class="lock-pin-input"
           type="password"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          maxlength="8"
-          placeholder="••••"
-          aria-label="4-digit Admin PIN"
+          maxlength="64"
+          placeholder="Access PIN / Passcode"
+          aria-label="Access PIN or Passcode"
           autocomplete="current-password"
         >
         <button type="button" id="ss-unlock-submit-btn" class="btn btn-primary lock-submit-btn" data-action="submit-unlock-pin">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-          <span>Unlock Device</span>
+          <span>Unlock with PIN</span>
+        </button>
+        <button type="button" id="ss-unlock-passkey-btn" class="btn lock-passkey-btn" data-action="unlock-passkey" hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 18v3c0 .6.4 1 1 1h4v-3h3v-3h2l1.4-1.4a6.5 6.5 0 1 0-4-4Z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+          <span>Unlock with Passkey</span>
         </button>
       </div>
       <div id="ss-unlock-status" class="lock-status" role="status" aria-live="polite"></div>
     </div>
   </div>
 
-  <script id="ss-initial-state-json" type="application/json">{"ok":true,"version":"v1.0.0","environment":"PROD","hasApiKey":false,"config":{"WEEKDAY_START_HOUR":10,"WEEKDAY_END_HOUR":17,"WEEKEND_START_HOUR":10,"WEEKEND_END_HOUR":17,"MAX_RAIN_POP_PCT":40,"MAX_RAIN_MM_PER_HR":0.3,"MAX_WIND_KMH":35,"MIN_FEELS_TEMP_C":5,"SUNNY_CLOUD_MAX_PCT":65,"DEFAULT_LAT":53.35,"DEFAULT_LNG":-6.26,"DEFAULT_LOCATION_NAME":"Dublin, Ireland","DEFAULT_TIMEZONE":"Europe/Dublin","ADMIN_PIN":"1234","PASSKEY_CREDENTIAL_ID":""},"forecast":{"locationKey":"53.35,-6.26","lat":53.35,"lng":-6.26,"locationName":"Dublin, Ireland","timeZoneId":"Europe/Dublin","currentLocalDate":"2026-09-30","currentLocalHour":9,"source":"mock_dublin","fetchedAtIso":"2026-10-02T12:26:22.979Z","days":[{"date":"2026-09-30","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":88,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":7,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":10,"windowTotalMm":0,"windowMaxWind":16,"windowMaxGust":26,"windowAvgCloud":26,"ignoredOffHoursRain":true,"offHoursRangeLabel":"01:00–04:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":true,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:22","sunsetText":"19:07","sunriseHour":7,"sunriseMinute":22,"sunsetHour":19,"sunsetMinute":7,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":10,"endHour":14,"windowScore":88,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":10,"endHour":17,"duration":7,"overlapHours":7,"missedHours":0,"isOutsideWindow":false,"windowScore":88,"allRuns":[{"startHour":10,"endHour":17,"duration":7,"avgScore":88}],"label":"Best Sun: 7h · 10:00–17:00"},"trend":{"previousScore":88,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790726400000,"dt":"2026-09-30","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790730000000,"dt":"2026-09-30","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.1,"feels":9.6,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790733600000,"dt":"2026-09-30","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790737200000,"dt":"2026-09-30","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790740800000,"dt":"2026-09-30","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790744400000,"dt":"2026-09-30","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790748000000,"dt":"2026-09-30","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790751600000,"dt":"2026-09-30","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790755200000,"dt":"2026-09-30","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790758800000,"dt":"2026-09-30","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":2},{"utcMs":1790762400000,"dt":"2026-09-30","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790766000000,"dt":"2026-09-30","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790769600000,"dt":"2026-09-30","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790773200000,"dt":"2026-09-30","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790776800000,"dt":"2026-09-30","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790780400000,"dt":"2026-09-30","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790784000000,"dt":"2026-09-30","h":16,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790787600000,"dt":"2026-09-30","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":2},{"utcMs":1790791200000,"dt":"2026-09-30","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790794800000,"dt":"2026-09-30","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790798400000,"dt":"2026-09-30","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790802000000,"dt":"2026-09-30","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790805600000,"dt":"2026-09-30","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790809200000,"dt":"2026-09-30","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0}]},{"date":"2026-10-01","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":90,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":6,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":17,"maxTemp":18,"minFeels":16,"maxFeels":18,"windowMaxPop":5,"windowTotalMm":0,"windowMaxWind":14,"windowMaxGust":24,"windowAvgCloud":28,"ignoredOffHoursRain":true,"offHoursRangeLabel":"02:00–05:00, 21:00–23:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:24","sunsetText":"19:04","sunriseHour":7,"sunriseMinute":24,"sunsetHour":19,"sunsetMinute":4,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":92,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":5},"bestSunStretch":{"kind":"SUN","startHour":8,"endHour":16,"duration":8,"overlapHours":6,"missedHours":2,"isOutsideWindow":true,"windowScore":92,"allRuns":[{"startHour":8,"endHour":16,"duration":8,"avgScore":92}],"label":"Best Sun: 8h · 08:00–16:00 (+2h outside)"},"trend":{"previousScore":90,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790812800000,"dt":"2026-10-01","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12,"feels":11.5,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790816400000,"dt":"2026-10-01","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.1,"feels":11.6,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790820000000,"dt":"2026-10-01","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.4,"feels":10.9,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790823600000,"dt":"2026-10-01","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790827200000,"dt":"2026-10-01","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.5,"feels":12,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790830800000,"dt":"2026-10-01","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.2,"feels":13.7,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790834400000,"dt":"2026-10-01","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15,"feels":14.5,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790838000000,"dt":"2026-10-01","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.8,"feels":15.3,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":1},{"utcMs":1790841600000,"dt":"2026-10-01","h":8,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":16.5,"feels":16,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":1},{"utcMs":1790845200000,"dt":"2026-10-01","h":9,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.1,"feels":16.6,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":2},{"utcMs":1790848800000,"dt":"2026-10-01","h":10,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.6,"feels":17.1,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790852400000,"dt":"2026-10-01","h":11,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.9,"feels":17.4,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790856000000,"dt":"2026-10-01","h":12,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18,"feels":17.5,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790859600000,"dt":"2026-10-01","h":13,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.9,"feels":17.4,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790863200000,"dt":"2026-10-01","h":14,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.6,"feels":17.1,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790866800000,"dt":"2026-10-01","h":15,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.1,"feels":16.6,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790870400000,"dt":"2026-10-01","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.5,"feels":16,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":4},{"utcMs":1790874000000,"dt":"2026-10-01","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.8,"feels":15.3,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":2},{"utcMs":1790877600000,"dt":"2026-10-01","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15,"feels":14.5,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":1},{"utcMs":1790881200000,"dt":"2026-10-01","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.2,"feels":13.7,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790884800000,"dt":"2026-10-01","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.5,"feels":13,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790888400000,"dt":"2026-10-01","h":21,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790892000000,"dt":"2026-10-01","h":22,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.4,"feels":10.9,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790895600000,"dt":"2026-10-01","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.1,"feels":11.6,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0}]},{"date":"2026-10-02","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":71,"tier":"DECENT","usableDryHours":7,"usableSunnyHours":1,"cond":"PARTLY_CLOUDY","desc":"Sun, then cloud","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":20,"windowTotalMm":0,"windowMaxWind":20,"windowMaxGust":30,"windowAvgCloud":70,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":20,"fullDayMaxPop":20,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:26","sunsetText":"19:02","sunriseHour":7,"sunriseMinute":26,"sunsetHour":19,"sunsetMinute":2,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":7,"endHour":11,"windowScore":82,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":20},"bestSunStretch":{"kind":"SUN","startHour":7,"endHour":11,"duration":4,"overlapHours":1,"missedHours":3,"isOutsideWindow":true,"windowScore":82,"allRuns":[{"startHour":7,"endHour":11,"duration":4,"avgScore":82}],"label":"Best Sun: 4h · 07:00–11:00 (+3h outside)"},"trend":{"previousScore":71,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790899200000,"dt":"2026-10-02","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10,"feels":9.5,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790902800000,"dt":"2026-10-02","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790906400000,"dt":"2026-10-02","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790910000000,"dt":"2026-10-02","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790913600000,"dt":"2026-10-02","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790917200000,"dt":"2026-10-02","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790920800000,"dt":"2026-10-02","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790924400000,"dt":"2026-10-02","h":7,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":13.8,"feels":13.3,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":1},{"utcMs":1790928000000,"dt":"2026-10-02","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.5,"feels":14,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":1},{"utcMs":1790931600000,"dt":"2026-10-02","h":9,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.1,"feels":14.6,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":2},{"utcMs":1790935200000,"dt":"2026-10-02","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.6,"feels":15.1,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":4},{"utcMs":1790938800000,"dt":"2026-10-02","h":11,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790942400000,"dt":"2026-10-02","h":12,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790946000000,"dt":"2026-10-02","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790949600000,"dt":"2026-10-02","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790953200000,"dt":"2026-10-02","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790956800000,"dt":"2026-10-02","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790960400000,"dt":"2026-10-02","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":2},{"utcMs":1790964000000,"dt":"2026-10-02","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":1},{"utcMs":1790967600000,"dt":"2026-10-02","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790971200000,"dt":"2026-10-02","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790974800000,"dt":"2026-10-02","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790978400000,"dt":"2026-10-02","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790982000000,"dt":"2026-10-02","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0}]},{"date":"2026-10-03","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":71,"tier":"DECENT","usableDryHours":7,"usableSunnyHours":0,"cond":"CLOUDY","desc":"Overcast & dry","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":15,"windowTotalMm":0,"windowMaxWind":18,"windowMaxGust":28,"windowAvgCloud":78,"ignoredOffHoursRain":true,"offHoursRangeLabel":"00:00–06:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":true,"hasCustomOverride":false,"solar":{"sunriseText":"07:27","sunsetText":"18:59","sunriseHour":7,"sunriseMinute":27,"sunsetHour":18,"sunsetMinute":59,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":7,"endHour":11,"windowScore":71,"tier":"DECENT","allDaylight":true,"daylightCount":4,"usableSunnyHours":0,"windowMaxPop":15},"bestSunStretch":{"kind":"DRY","startHour":7,"endHour":19,"duration":12,"overlapHours":7,"missedHours":5,"isOutsideWindow":false,"windowScore":71,"allRuns":[],"label":"No sun · 12h Dry (07:00–19:00)"},"trend":{"previousScore":71,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790985600000,"dt":"2026-10-03","h":0,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790989200000,"dt":"2026-10-03","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.1,"feels":8.6,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790992800000,"dt":"2026-10-03","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.4,"feels":8.9,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790996400000,"dt":"2026-10-03","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.9,"feels":9.4,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791000000000,"dt":"2026-10-03","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791003600000,"dt":"2026-10-03","h":5,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.2,"feels":10.7,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791007200000,"dt":"2026-10-03","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791010800000,"dt":"2026-10-03","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791014400000,"dt":"2026-10-03","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791018000000,"dt":"2026-10-03","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":2},{"utcMs":1791021600000,"dt":"2026-10-03","h":10,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791025200000,"dt":"2026-10-03","h":11,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791028800000,"dt":"2026-10-03","h":12,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791032400000,"dt":"2026-10-03","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791036000000,"dt":"2026-10-03","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791039600000,"dt":"2026-10-03","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791043200000,"dt":"2026-10-03","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791046800000,"dt":"2026-10-03","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":2},{"utcMs":1791050400000,"dt":"2026-10-03","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791054000000,"dt":"2026-10-03","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791057600000,"dt":"2026-10-03","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791061200000,"dt":"2026-10-03","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791064800000,"dt":"2026-10-03","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791068400000,"dt":"2026-10-03","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0}]},{"date":"2026-10-04","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":42,"tier":"POOR","usableDryHours":2,"usableSunnyHours":2,"cond":"SUN_RAIN","desc":"Rain, then sun","isDay":true,"minTemp":14,"maxTemp":15,"minFeels":12,"maxFeels":14,"windowMaxPop":80,"windowTotalMm":9,"windowMaxWind":30,"windowMaxGust":40,"windowAvgCloud":73,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":true,"hasCustomOverride":false,"solar":{"sunriseText":"07:29","sunsetText":"18:57","sunriseHour":7,"sunriseMinute":29,"sunsetHour":18,"sunsetMinute":57,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":15,"endHour":19,"windowScore":87,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":15,"endHour":19,"duration":4,"overlapHours":2,"missedHours":2,"isOutsideWindow":true,"windowScore":87,"allRuns":[{"startHour":15,"endHour":19,"duration":4,"avgScore":87}],"label":"Best Sun: 4h · 15:00–19:00 (+2h outside)"},"trend":{"previousScore":42,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791072000000,"dt":"2026-10-04","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9,"feels":7.5,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791075600000,"dt":"2026-10-04","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.1,"feels":7.6,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791079200000,"dt":"2026-10-04","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.4,"feels":7.9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791082800000,"dt":"2026-10-04","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.9,"feels":8.4,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791086400000,"dt":"2026-10-04","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.5,"feels":9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791090000000,"dt":"2026-10-04","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.2,"feels":9.7,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791093600000,"dt":"2026-10-04","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791097200000,"dt":"2026-10-04","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":12.8,"feels":11.3,"pop":10,"mm":0,"cloud":74,"wind":22,"gust":32,"uv":1},{"utcMs":1791100800000,"dt":"2026-10-04","h":8,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.5,"feels":12,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791104400000,"dt":"2026-10-04","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.1,"feels":12.6,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791108000000,"dt":"2026-10-04","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.6,"feels":13.1,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791111600000,"dt":"2026-10-04","h":11,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791115200000,"dt":"2026-10-04","h":12,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":15,"feels":13.5,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791118800000,"dt":"2026-10-04","h":13,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791122400000,"dt":"2026-10-04","h":14,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.6,"feels":13.1,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791126000000,"dt":"2026-10-04","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.1,"feels":12.6,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":4},{"utcMs":1791129600000,"dt":"2026-10-04","h":16,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":13.5,"feels":12,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":4},{"utcMs":1791133200000,"dt":"2026-10-04","h":17,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":12.8,"feels":11.3,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":2},{"utcMs":1791136800000,"dt":"2026-10-04","h":18,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":12,"feels":10.5,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":1},{"utcMs":1791140400000,"dt":"2026-10-04","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.2,"feels":9.7,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791144000000,"dt":"2026-10-04","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.5,"feels":9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791147600000,"dt":"2026-10-04","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.9,"feels":8.4,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791151200000,"dt":"2026-10-04","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.4,"feels":7.9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791154800000,"dt":"2026-10-04","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.1,"feels":7.6,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0}]},{"date":"2026-10-05","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":93,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":7,"cond":"CLEAR","desc":"Sunny & clear","isDay":true,"minTemp":18,"maxTemp":19,"minFeels":17,"maxFeels":19,"windowMaxPop":5,"windowTotalMm":0,"windowMaxWind":12,"windowMaxGust":22,"windowAvgCloud":18,"ignoredOffHoursRain":true,"offHoursRangeLabel":"01:00–05:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:31","sunsetText":"18:55","sunriseHour":7,"sunriseMinute":31,"sunsetHour":18,"sunsetMinute":55,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":9,"endHour":13,"windowScore":93,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":5},"bestSunStretch":{"kind":"SUN","startHour":9,"endHour":18,"duration":9,"overlapHours":7,"missedHours":2,"isOutsideWindow":true,"windowScore":93,"allRuns":[{"startHour":9,"endHour":18,"duration":9,"avgScore":93}],"label":"Best Sun: 9h · 09:00–18:00 (+2h outside)"},"trend":{"previousScore":93,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791158400000,"dt":"2026-10-05","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791162000000,"dt":"2026-10-05","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.1,"feels":12.6,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791165600000,"dt":"2026-10-05","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.4,"feels":12.9,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791169200000,"dt":"2026-10-05","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791172800000,"dt":"2026-10-05","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.5,"feels":14,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791176400000,"dt":"2026-10-05","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15.2,"feels":14.7,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791180000000,"dt":"2026-10-05","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791183600000,"dt":"2026-10-05","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":16.8,"feels":16.3,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791187200000,"dt":"2026-10-05","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":17.5,"feels":17,"pop":5,"mm":0,"cloud":74,"wind":12,"gust":22,"uv":1},{"utcMs":1791190800000,"dt":"2026-10-05","h":9,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.1,"feels":17.6,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":2},{"utcMs":1791194400000,"dt":"2026-10-05","h":10,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.6,"feels":18.1,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791198000000,"dt":"2026-10-05","h":11,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.9,"feels":18.4,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791201600000,"dt":"2026-10-05","h":12,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":19,"feels":18.5,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791205200000,"dt":"2026-10-05","h":13,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.9,"feels":18.4,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791208800000,"dt":"2026-10-05","h":14,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.6,"feels":18.1,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791212400000,"dt":"2026-10-05","h":15,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.1,"feels":17.6,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791216000000,"dt":"2026-10-05","h":16,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.5,"feels":17,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791219600000,"dt":"2026-10-05","h":17,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":16.8,"feels":16.3,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":2},{"utcMs":1791223200000,"dt":"2026-10-05","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":5,"mm":0,"cloud":74,"wind":12,"gust":22,"uv":1},{"utcMs":1791226800000,"dt":"2026-10-05","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15.2,"feels":14.7,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791230400000,"dt":"2026-10-05","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791234000000,"dt":"2026-10-05","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.9,"feels":13.4,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791237600000,"dt":"2026-10-05","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.4,"feels":12.9,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791241200000,"dt":"2026-10-05","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.1,"feels":12.6,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0}]},{"date":"2026-10-06","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":14,"tier":"POOR","usableDryHours":0,"usableSunnyHours":0,"cond":"RAIN_SHOWERS","desc":"Rain all window","isDay":true,"minTemp":12,"maxTemp":13,"minFeels":10,"maxFeels":12,"windowMaxPop":80,"windowTotalMm":12.6,"windowMaxWind":44,"windowMaxGust":54,"windowAvgCloud":92,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:33","sunsetText":"18:52","sunriseHour":7,"sunriseMinute":33,"sunsetHour":18,"sunsetMinute":52,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":14,"tier":"POOR","allDaylight":true,"daylightCount":4,"usableSunnyHours":0,"windowMaxPop":80},"bestSunStretch":{"kind":"WASHOUT","startHour":8,"endHour":12,"duration":0,"overlapHours":0,"missedHours":0,"isOutsideWindow":false,"windowScore":14,"allRuns":[],"label":"Washout · Rain all day"},"trend":{"previousScore":14,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791244800000,"dt":"2026-10-06","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7,"feels":5.5,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791248400000,"dt":"2026-10-06","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.1,"feels":5.6,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791252000000,"dt":"2026-10-06","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":7.4,"feels":5.9,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791255600000,"dt":"2026-10-06","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":7.9,"feels":6.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791259200000,"dt":"2026-10-06","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":8.5,"feels":7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791262800000,"dt":"2026-10-06","h":5,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":9.2,"feels":7.7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791266400000,"dt":"2026-10-06","h":6,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791270000000,"dt":"2026-10-06","h":7,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.8,"feels":9.3,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791273600000,"dt":"2026-10-06","h":8,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791277200000,"dt":"2026-10-06","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.1,"feels":10.6,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791280800000,"dt":"2026-10-06","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.6,"feels":11.1,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791284400000,"dt":"2026-10-06","h":11,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791288000000,"dt":"2026-10-06","h":12,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13,"feels":11.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791291600000,"dt":"2026-10-06","h":13,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791295200000,"dt":"2026-10-06","h":14,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.6,"feels":11.1,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791298800000,"dt":"2026-10-06","h":15,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.1,"feels":10.6,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791302400000,"dt":"2026-10-06","h":16,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791306000000,"dt":"2026-10-06","h":17,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.8,"feels":9.3,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791309600000,"dt":"2026-10-06","h":18,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791313200000,"dt":"2026-10-06","h":19,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":9.2,"feels":7.7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791316800000,"dt":"2026-10-06","h":20,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":8.5,"feels":7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791320400000,"dt":"2026-10-06","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.9,"feels":6.4,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791324000000,"dt":"2026-10-06","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.4,"feels":5.9,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791327600000,"dt":"2026-10-06","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.1,"feels":5.6,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0}]},{"date":"2026-10-07","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":75,"tier":"PRIME","usableDryHours":6,"usableSunnyHours":4,"cond":"SUN_RAIN","desc":"Rain, then sun","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":80,"windowTotalMm":1.8,"windowMaxWind":24,"windowMaxGust":34,"windowAvgCloud":51,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:35","sunsetText":"18:50","sunriseHour":7,"sunriseMinute":35,"sunsetHour":18,"sunsetMinute":50,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":11,"endHour":15,"windowScore":87,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":11,"endHour":15,"duration":4,"overlapHours":4,"missedHours":0,"isOutsideWindow":false,"windowScore":87,"allRuns":[{"startHour":8,"endHour":9,"duration":1,"avgScore":87},{"startHour":11,"endHour":15,"duration":4,"avgScore":87},{"startHour":17,"endHour":19,"duration":2,"avgScore":87}],"label":"Best Sun: 4h · 11:00–15:00"},"trend":{"previousScore":75,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791331200000,"dt":"2026-10-07","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791334800000,"dt":"2026-10-07","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791338400000,"dt":"2026-10-07","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791342000000,"dt":"2026-10-07","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791345600000,"dt":"2026-10-07","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791349200000,"dt":"2026-10-07","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791352800000,"dt":"2026-10-07","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791356400000,"dt":"2026-10-07","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.8,"feels":14.3,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791360000000,"dt":"2026-10-07","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":1},{"utcMs":1791363600000,"dt":"2026-10-07","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":16.1,"feels":14.6,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791367200000,"dt":"2026-10-07","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":16.6,"feels":15.1,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791370800000,"dt":"2026-10-07","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":4},{"utcMs":1791374400000,"dt":"2026-10-07","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791378000000,"dt":"2026-10-07","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791381600000,"dt":"2026-10-07","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791385200000,"dt":"2026-10-07","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":4},{"utcMs":1791388800000,"dt":"2026-10-07","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":4},{"utcMs":1791392400000,"dt":"2026-10-07","h":17,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":2},{"utcMs":1791396000000,"dt":"2026-10-07","h":18,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":1},{"utcMs":1791399600000,"dt":"2026-10-07","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791403200000,"dt":"2026-10-07","h":20,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.5,"feels":11,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791406800000,"dt":"2026-10-07","h":21,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791410400000,"dt":"2026-10-07","h":22,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791414000000,"dt":"2026-10-07","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0}]},{"date":"2026-10-08","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":87,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":6,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":10,"windowTotalMm":0,"windowMaxWind":15,"windowMaxGust":25,"windowAvgCloud":32,"ignoredOffHoursRain":true,"offHoursRangeLabel":"00:00–04:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:36","sunsetText":"18:47","sunriseHour":7,"sunriseMinute":36,"sunsetHour":18,"sunsetMinute":47,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":10,"endHour":14,"windowScore":89,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":10,"endHour":16,"duration":6,"overlapHours":6,"missedHours":0,"isOutsideWindow":false,"windowScore":89,"allRuns":[{"startHour":10,"endHour":16,"duration":6,"avgScore":89}],"label":"Best Sun: 6h · 10:00–16:00"},"trend":{"previousScore":87,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791417600000,"dt":"2026-10-08","h":0,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11,"feels":9.5,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791421200000,"dt":"2026-10-08","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.1,"feels":9.6,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791424800000,"dt":"2026-10-08","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791428400000,"dt":"2026-10-08","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791432000000,"dt":"2026-10-08","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791435600000,"dt":"2026-10-08","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791439200000,"dt":"2026-10-08","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791442800000,"dt":"2026-10-08","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.8,"feels":14.3,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791446400000,"dt":"2026-10-08","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":1},{"utcMs":1791450000000,"dt":"2026-10-08","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":2},{"utcMs":1791453600000,"dt":"2026-10-08","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791457200000,"dt":"2026-10-08","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791460800000,"dt":"2026-10-08","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791464400000,"dt":"2026-10-08","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791468000000,"dt":"2026-10-08","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791471600000,"dt":"2026-10-08","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791475200000,"dt":"2026-10-08","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":4},{"utcMs":1791478800000,"dt":"2026-10-08","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":2},{"utcMs":1791482400000,"dt":"2026-10-08","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":1},{"utcMs":1791486000000,"dt":"2026-10-08","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791489600000,"dt":"2026-10-08","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791493200000,"dt":"2026-10-08","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791496800000,"dt":"2026-10-08","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791500400000,"dt":"2026-10-08","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0}]},{"date":"2026-10-09","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":78,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":3,"cond":"PARTLY_CLOUDY","desc":"Sun, then cloud","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":15,"windowTotalMm":0,"windowMaxWind":18,"windowMaxGust":28,"windowAvgCloud":56,"ignoredOffHoursRain":true,"offHoursRangeLabel":"02:00–05:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:38","sunsetText":"18:45","sunriseHour":7,"sunriseMinute":38,"sunsetHour":18,"sunsetMinute":45,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":84,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":15},"bestSunStretch":{"kind":"SUN","startHour":8,"endHour":13,"duration":5,"overlapHours":3,"missedHours":2,"isOutsideWindow":true,"windowScore":84,"allRuns":[{"startHour":8,"endHour":13,"duration":5,"avgScore":84}],"label":"Best Sun: 5h · 08:00–13:00 (+2h outside)"},"trend":{"previousScore":78,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791504000000,"dt":"2026-10-09","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10,"feels":9.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791507600000,"dt":"2026-10-09","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791511200000,"dt":"2026-10-09","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.4,"feels":8.9,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791514800000,"dt":"2026-10-09","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.9,"feels":9.4,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791518400000,"dt":"2026-10-09","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791522000000,"dt":"2026-10-09","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791525600000,"dt":"2026-10-09","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791529200000,"dt":"2026-10-09","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791532800000,"dt":"2026-10-09","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":1},{"utcMs":1791536400000,"dt":"2026-10-09","h":9,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":2},{"utcMs":1791540000000,"dt":"2026-10-09","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":4},{"utcMs":1791543600000,"dt":"2026-10-09","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":4},{"utcMs":1791547200000,"dt":"2026-10-09","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":5},{"utcMs":1791550800000,"dt":"2026-10-09","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":5},{"utcMs":1791554400000,"dt":"2026-10-09","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":5},{"utcMs":1791558000000,"dt":"2026-10-09","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":4},{"utcMs":1791561600000,"dt":"2026-10-09","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":4},{"utcMs":1791565200000,"dt":"2026-10-09","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":2},{"utcMs":1791568800000,"dt":"2026-10-09","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":1},{"utcMs":1791572400000,"dt":"2026-10-09","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791576000000,"dt":"2026-10-09","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791579600000,"dt":"2026-10-09","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791583200000,"dt":"2026-10-09","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791586800000,"dt":"2026-10-09","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0}]}]}}</script>
+  <script id="ss-initial-state-json" type="application/json">{"ok":true,"version":"v1.0.0","environment":"PROD","hasApiKey":false,"config":{"WEEKDAY_START_HOUR":10,"WEEKDAY_END_HOUR":17,"WEEKEND_START_HOUR":10,"WEEKEND_END_HOUR":17,"MAX_RAIN_POP_PCT":40,"MAX_RAIN_MM_PER_HR":0.3,"MAX_WIND_KMH":35,"MIN_FEELS_TEMP_C":5,"SUNNY_CLOUD_MAX_PCT":65,"DEFAULT_LAT":53.35,"DEFAULT_LNG":-6.26,"DEFAULT_LOCATION_NAME":"Dublin, Ireland","DEFAULT_TIMEZONE":"Europe/Dublin","ADMIN_PIN":"1234","PASSKEY_CREDENTIAL_ID":""},"forecast":{"locationKey":"53.35,-6.26","lat":53.35,"lng":-6.26,"locationName":"Dublin, Ireland","timeZoneId":"Europe/Dublin","currentLocalDate":"2026-09-30","currentLocalHour":9,"source":"mock_dublin","fetchedAtIso":"2026-10-02T13:36:31.406Z","days":[{"date":"2026-09-30","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":88,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":7,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":10,"windowTotalMm":0,"windowMaxWind":16,"windowMaxGust":26,"windowAvgCloud":26,"ignoredOffHoursRain":true,"offHoursRangeLabel":"01:00–04:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":true,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:22","sunsetText":"19:07","sunriseHour":7,"sunriseMinute":22,"sunsetHour":19,"sunsetMinute":7,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":10,"endHour":14,"windowScore":88,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":10,"endHour":17,"duration":7,"overlapHours":7,"missedHours":0,"isOutsideWindow":false,"windowScore":88,"allRuns":[{"startHour":10,"endHour":17,"duration":7,"avgScore":88}],"label":"Best Sun: 7h · 10:00–17:00"},"trend":{"previousScore":88,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790726400000,"dt":"2026-09-30","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790730000000,"dt":"2026-09-30","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.1,"feels":9.6,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790733600000,"dt":"2026-09-30","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790737200000,"dt":"2026-09-30","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1790740800000,"dt":"2026-09-30","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790744400000,"dt":"2026-09-30","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790748000000,"dt":"2026-09-30","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790751600000,"dt":"2026-09-30","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790755200000,"dt":"2026-09-30","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790758800000,"dt":"2026-09-30","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":2},{"utcMs":1790762400000,"dt":"2026-09-30","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790766000000,"dt":"2026-09-30","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790769600000,"dt":"2026-09-30","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790773200000,"dt":"2026-09-30","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790776800000,"dt":"2026-09-30","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":5},{"utcMs":1790780400000,"dt":"2026-09-30","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790784000000,"dt":"2026-09-30","h":16,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":26,"wind":16,"gust":26,"uv":4},{"utcMs":1790787600000,"dt":"2026-09-30","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":2},{"utcMs":1790791200000,"dt":"2026-09-30","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":1},{"utcMs":1790794800000,"dt":"2026-09-30","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790798400000,"dt":"2026-09-30","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790802000000,"dt":"2026-09-30","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790805600000,"dt":"2026-09-30","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1790809200000,"dt":"2026-09-30","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0}]},{"date":"2026-10-01","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":90,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":6,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":17,"maxTemp":18,"minFeels":16,"maxFeels":18,"windowMaxPop":5,"windowTotalMm":0,"windowMaxWind":14,"windowMaxGust":24,"windowAvgCloud":28,"ignoredOffHoursRain":true,"offHoursRangeLabel":"02:00–05:00, 21:00–23:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:24","sunsetText":"19:04","sunriseHour":7,"sunriseMinute":24,"sunsetHour":19,"sunsetMinute":4,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":92,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":5},"bestSunStretch":{"kind":"SUN","startHour":8,"endHour":16,"duration":8,"overlapHours":6,"missedHours":2,"isOutsideWindow":true,"windowScore":92,"allRuns":[{"startHour":8,"endHour":16,"duration":8,"avgScore":92}],"label":"Best Sun: 8h · 08:00–16:00 (+2h outside)"},"trend":{"previousScore":90,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790812800000,"dt":"2026-10-01","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12,"feels":11.5,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790816400000,"dt":"2026-10-01","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.1,"feels":11.6,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790820000000,"dt":"2026-10-01","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.4,"feels":10.9,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790823600000,"dt":"2026-10-01","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790827200000,"dt":"2026-10-01","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.5,"feels":12,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790830800000,"dt":"2026-10-01","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.2,"feels":13.7,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790834400000,"dt":"2026-10-01","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15,"feels":14.5,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790838000000,"dt":"2026-10-01","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.8,"feels":15.3,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":1},{"utcMs":1790841600000,"dt":"2026-10-01","h":8,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":16.5,"feels":16,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":1},{"utcMs":1790845200000,"dt":"2026-10-01","h":9,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.1,"feels":16.6,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":2},{"utcMs":1790848800000,"dt":"2026-10-01","h":10,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.6,"feels":17.1,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790852400000,"dt":"2026-10-01","h":11,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.9,"feels":17.4,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790856000000,"dt":"2026-10-01","h":12,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18,"feels":17.5,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790859600000,"dt":"2026-10-01","h":13,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.9,"feels":17.4,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790863200000,"dt":"2026-10-01","h":14,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.6,"feels":17.1,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":5},{"utcMs":1790866800000,"dt":"2026-10-01","h":15,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.1,"feels":16.6,"pop":5,"mm":0,"cloud":20,"wind":14,"gust":24,"uv":4},{"utcMs":1790870400000,"dt":"2026-10-01","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.5,"feels":16,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":4},{"utcMs":1790874000000,"dt":"2026-10-01","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.8,"feels":15.3,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":2},{"utcMs":1790877600000,"dt":"2026-10-01","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15,"feels":14.5,"pop":5,"mm":0,"cloud":74,"wind":14,"gust":24,"uv":1},{"utcMs":1790881200000,"dt":"2026-10-01","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.2,"feels":13.7,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790884800000,"dt":"2026-10-01","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.5,"feels":13,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0},{"utcMs":1790888400000,"dt":"2026-10-01","h":21,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790892000000,"dt":"2026-10-01","h":22,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.4,"feels":10.9,"pop":80,"mm":1.8,"cloud":92,"wind":22,"gust":32,"uv":0},{"utcMs":1790895600000,"dt":"2026-10-01","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.1,"feels":11.6,"pop":15,"mm":0,"cloud":45,"wind":14,"gust":24,"uv":0}]},{"date":"2026-10-02","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":71,"tier":"DECENT","usableDryHours":7,"usableSunnyHours":1,"cond":"PARTLY_CLOUDY","desc":"Sun, then cloud","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":20,"windowTotalMm":0,"windowMaxWind":20,"windowMaxGust":30,"windowAvgCloud":70,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":20,"fullDayMaxPop":20,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:26","sunsetText":"19:02","sunriseHour":7,"sunriseMinute":26,"sunsetHour":19,"sunsetMinute":2,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":7,"endHour":11,"windowScore":82,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":20},"bestSunStretch":{"kind":"SUN","startHour":7,"endHour":11,"duration":4,"overlapHours":1,"missedHours":3,"isOutsideWindow":true,"windowScore":82,"allRuns":[{"startHour":7,"endHour":11,"duration":4,"avgScore":82}],"label":"Best Sun: 4h · 07:00–11:00 (+3h outside)"},"trend":{"previousScore":71,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790899200000,"dt":"2026-10-02","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10,"feels":9.5,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790902800000,"dt":"2026-10-02","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790906400000,"dt":"2026-10-02","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790910000000,"dt":"2026-10-02","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790913600000,"dt":"2026-10-02","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790917200000,"dt":"2026-10-02","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790920800000,"dt":"2026-10-02","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790924400000,"dt":"2026-10-02","h":7,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":13.8,"feels":13.3,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":1},{"utcMs":1790928000000,"dt":"2026-10-02","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.5,"feels":14,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":1},{"utcMs":1790931600000,"dt":"2026-10-02","h":9,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.1,"feels":14.6,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":2},{"utcMs":1790935200000,"dt":"2026-10-02","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.6,"feels":15.1,"pop":20,"mm":0,"cloud":32,"wind":20,"gust":30,"uv":4},{"utcMs":1790938800000,"dt":"2026-10-02","h":11,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790942400000,"dt":"2026-10-02","h":12,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790946000000,"dt":"2026-10-02","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790949600000,"dt":"2026-10-02","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":5},{"utcMs":1790953200000,"dt":"2026-10-02","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790956800000,"dt":"2026-10-02","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":4},{"utcMs":1790960400000,"dt":"2026-10-02","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":2},{"utcMs":1790964000000,"dt":"2026-10-02","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":20,"mm":0,"cloud":76,"wind":20,"gust":30,"uv":1},{"utcMs":1790967600000,"dt":"2026-10-02","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790971200000,"dt":"2026-10-02","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790974800000,"dt":"2026-10-02","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790978400000,"dt":"2026-10-02","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0},{"utcMs":1790982000000,"dt":"2026-10-02","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":20,"gust":30,"uv":0}]},{"date":"2026-10-03","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":71,"tier":"DECENT","usableDryHours":7,"usableSunnyHours":0,"cond":"CLOUDY","desc":"Overcast & dry","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":15,"windowTotalMm":0,"windowMaxWind":18,"windowMaxGust":28,"windowAvgCloud":78,"ignoredOffHoursRain":true,"offHoursRangeLabel":"00:00–06:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":true,"hasCustomOverride":false,"solar":{"sunriseText":"07:27","sunsetText":"18:59","sunriseHour":7,"sunriseMinute":27,"sunsetHour":18,"sunsetMinute":59,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":7,"endHour":11,"windowScore":71,"tier":"DECENT","allDaylight":true,"daylightCount":4,"usableSunnyHours":0,"windowMaxPop":15},"bestSunStretch":{"kind":"DRY","startHour":7,"endHour":19,"duration":12,"overlapHours":7,"missedHours":5,"isOutsideWindow":false,"windowScore":71,"allRuns":[],"label":"No sun · 12h Dry (07:00–19:00)"},"trend":{"previousScore":71,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1790985600000,"dt":"2026-10-03","h":0,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790989200000,"dt":"2026-10-03","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.1,"feels":8.6,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790992800000,"dt":"2026-10-03","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.4,"feels":8.9,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1790996400000,"dt":"2026-10-03","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.9,"feels":9.4,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791000000000,"dt":"2026-10-03","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791003600000,"dt":"2026-10-03","h":5,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.2,"feels":10.7,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791007200000,"dt":"2026-10-03","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791010800000,"dt":"2026-10-03","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791014400000,"dt":"2026-10-03","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791018000000,"dt":"2026-10-03","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":2},{"utcMs":1791021600000,"dt":"2026-10-03","h":10,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791025200000,"dt":"2026-10-03","h":11,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791028800000,"dt":"2026-10-03","h":12,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791032400000,"dt":"2026-10-03","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791036000000,"dt":"2026-10-03","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":5},{"utcMs":1791039600000,"dt":"2026-10-03","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791043200000,"dt":"2026-10-03","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":4},{"utcMs":1791046800000,"dt":"2026-10-03","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":2},{"utcMs":1791050400000,"dt":"2026-10-03","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":78,"wind":18,"gust":28,"uv":1},{"utcMs":1791054000000,"dt":"2026-10-03","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791057600000,"dt":"2026-10-03","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791061200000,"dt":"2026-10-03","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791064800000,"dt":"2026-10-03","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791068400000,"dt":"2026-10-03","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0}]},{"date":"2026-10-04","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":42,"tier":"POOR","usableDryHours":2,"usableSunnyHours":2,"cond":"SUN_RAIN","desc":"Rain, then sun","isDay":true,"minTemp":14,"maxTemp":15,"minFeels":12,"maxFeels":14,"windowMaxPop":80,"windowTotalMm":9,"windowMaxWind":30,"windowMaxGust":40,"windowAvgCloud":73,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":true,"hasCustomOverride":false,"solar":{"sunriseText":"07:29","sunsetText":"18:57","sunriseHour":7,"sunriseMinute":29,"sunsetHour":18,"sunsetMinute":57,"daylightStartHour":7,"daylightEndHour":19,"sunriseWindowStart":7,"sunriseWindowEnd":9,"daytimeWindowStart":9,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":15,"endHour":19,"windowScore":87,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":15,"endHour":19,"duration":4,"overlapHours":2,"missedHours":2,"isOutsideWindow":true,"windowScore":87,"allRuns":[{"startHour":15,"endHour":19,"duration":4,"avgScore":87}],"label":"Best Sun: 4h · 15:00–19:00 (+2h outside)"},"trend":{"previousScore":42,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791072000000,"dt":"2026-10-04","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9,"feels":7.5,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791075600000,"dt":"2026-10-04","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.1,"feels":7.6,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791079200000,"dt":"2026-10-04","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.4,"feels":7.9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791082800000,"dt":"2026-10-04","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.9,"feels":8.4,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791086400000,"dt":"2026-10-04","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.5,"feels":9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791090000000,"dt":"2026-10-04","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.2,"feels":9.7,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791093600000,"dt":"2026-10-04","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791097200000,"dt":"2026-10-04","h":7,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":12.8,"feels":11.3,"pop":10,"mm":0,"cloud":74,"wind":22,"gust":32,"uv":1},{"utcMs":1791100800000,"dt":"2026-10-04","h":8,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.5,"feels":12,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791104400000,"dt":"2026-10-04","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.1,"feels":12.6,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791108000000,"dt":"2026-10-04","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.6,"feels":13.1,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791111600000,"dt":"2026-10-04","h":11,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791115200000,"dt":"2026-10-04","h":12,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":15,"feels":13.5,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791118800000,"dt":"2026-10-04","h":13,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791122400000,"dt":"2026-10-04","h":14,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.6,"feels":13.1,"pop":80,"mm":1.8,"cloud":92,"wind":30,"gust":40,"uv":0},{"utcMs":1791126000000,"dt":"2026-10-04","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.1,"feels":12.6,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":4},{"utcMs":1791129600000,"dt":"2026-10-04","h":16,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":13.5,"feels":12,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":4},{"utcMs":1791133200000,"dt":"2026-10-04","h":17,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":12.8,"feels":11.3,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":2},{"utcMs":1791136800000,"dt":"2026-10-04","h":18,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":12,"feels":10.5,"pop":10,"mm":0,"cloud":25,"wind":22,"gust":32,"uv":1},{"utcMs":1791140400000,"dt":"2026-10-04","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.2,"feels":9.7,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791144000000,"dt":"2026-10-04","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.5,"feels":9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791147600000,"dt":"2026-10-04","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.9,"feels":8.4,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791151200000,"dt":"2026-10-04","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.4,"feels":7.9,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0},{"utcMs":1791154800000,"dt":"2026-10-04","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":9.1,"feels":7.6,"pop":15,"mm":0,"cloud":45,"wind":22,"gust":32,"uv":0}]},{"date":"2026-10-05","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":93,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":7,"cond":"CLEAR","desc":"Sunny & clear","isDay":true,"minTemp":18,"maxTemp":19,"minFeels":17,"maxFeels":19,"windowMaxPop":5,"windowTotalMm":0,"windowMaxWind":12,"windowMaxGust":22,"windowAvgCloud":18,"ignoredOffHoursRain":true,"offHoursRangeLabel":"01:00–05:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:31","sunsetText":"18:55","sunriseHour":7,"sunriseMinute":31,"sunsetHour":18,"sunsetMinute":55,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":9,"endHour":13,"windowScore":93,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":5},"bestSunStretch":{"kind":"SUN","startHour":9,"endHour":18,"duration":9,"overlapHours":7,"missedHours":2,"isOutsideWindow":true,"windowScore":93,"allRuns":[{"startHour":9,"endHour":18,"duration":9,"avgScore":93}],"label":"Best Sun: 9h · 09:00–18:00 (+2h outside)"},"trend":{"previousScore":93,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791158400000,"dt":"2026-10-05","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791162000000,"dt":"2026-10-05","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.1,"feels":12.6,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791165600000,"dt":"2026-10-05","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.4,"feels":12.9,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791169200000,"dt":"2026-10-05","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13.9,"feels":13.4,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791172800000,"dt":"2026-10-05","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":14.5,"feels":14,"pop":80,"mm":1.8,"cloud":92,"wind":20,"gust":30,"uv":0},{"utcMs":1791176400000,"dt":"2026-10-05","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15.2,"feels":14.7,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791180000000,"dt":"2026-10-05","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791183600000,"dt":"2026-10-05","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":16.8,"feels":16.3,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791187200000,"dt":"2026-10-05","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":17.5,"feels":17,"pop":5,"mm":0,"cloud":74,"wind":12,"gust":22,"uv":1},{"utcMs":1791190800000,"dt":"2026-10-05","h":9,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.1,"feels":17.6,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":2},{"utcMs":1791194400000,"dt":"2026-10-05","h":10,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.6,"feels":18.1,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791198000000,"dt":"2026-10-05","h":11,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.9,"feels":18.4,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791201600000,"dt":"2026-10-05","h":12,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":19,"feels":18.5,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791205200000,"dt":"2026-10-05","h":13,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.9,"feels":18.4,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791208800000,"dt":"2026-10-05","h":14,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.6,"feels":18.1,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":5},{"utcMs":1791212400000,"dt":"2026-10-05","h":15,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":18.1,"feels":17.6,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791216000000,"dt":"2026-10-05","h":16,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":17.5,"feels":17,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":4},{"utcMs":1791219600000,"dt":"2026-10-05","h":17,"day":true,"cond":"CLEAR","desc":"Mostly sunny","temp":16.8,"feels":16.3,"pop":5,"mm":0,"cloud":18,"wind":12,"gust":22,"uv":2},{"utcMs":1791223200000,"dt":"2026-10-05","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16,"feels":15.5,"pop":5,"mm":0,"cloud":74,"wind":12,"gust":22,"uv":1},{"utcMs":1791226800000,"dt":"2026-10-05","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":15.2,"feels":14.7,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791230400000,"dt":"2026-10-05","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791234000000,"dt":"2026-10-05","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.9,"feels":13.4,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791237600000,"dt":"2026-10-05","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.4,"feels":12.9,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0},{"utcMs":1791241200000,"dt":"2026-10-05","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.1,"feels":12.6,"pop":15,"mm":0,"cloud":45,"wind":12,"gust":22,"uv":0}]},{"date":"2026-10-06","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":14,"tier":"POOR","usableDryHours":0,"usableSunnyHours":0,"cond":"RAIN_SHOWERS","desc":"Rain all window","isDay":true,"minTemp":12,"maxTemp":13,"minFeels":10,"maxFeels":12,"windowMaxPop":80,"windowTotalMm":12.6,"windowMaxWind":44,"windowMaxGust":54,"windowAvgCloud":92,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:33","sunsetText":"18:52","sunriseHour":7,"sunriseMinute":33,"sunsetHour":18,"sunsetMinute":52,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":14,"tier":"POOR","allDaylight":true,"daylightCount":4,"usableSunnyHours":0,"windowMaxPop":80},"bestSunStretch":{"kind":"WASHOUT","startHour":8,"endHour":12,"duration":0,"overlapHours":0,"missedHours":0,"isOutsideWindow":false,"windowScore":14,"allRuns":[],"label":"Washout · Rain all day"},"trend":{"previousScore":14,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791244800000,"dt":"2026-10-06","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7,"feels":5.5,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791248400000,"dt":"2026-10-06","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.1,"feels":5.6,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791252000000,"dt":"2026-10-06","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":7.4,"feels":5.9,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791255600000,"dt":"2026-10-06","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":7.9,"feels":6.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791259200000,"dt":"2026-10-06","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":8.5,"feels":7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791262800000,"dt":"2026-10-06","h":5,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":9.2,"feels":7.7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791266400000,"dt":"2026-10-06","h":6,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791270000000,"dt":"2026-10-06","h":7,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.8,"feels":9.3,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791273600000,"dt":"2026-10-06","h":8,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791277200000,"dt":"2026-10-06","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.1,"feels":10.6,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791280800000,"dt":"2026-10-06","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.6,"feels":11.1,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791284400000,"dt":"2026-10-06","h":11,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791288000000,"dt":"2026-10-06","h":12,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":13,"feels":11.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791291600000,"dt":"2026-10-06","h":13,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.9,"feels":11.4,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791295200000,"dt":"2026-10-06","h":14,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.6,"feels":11.1,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791298800000,"dt":"2026-10-06","h":15,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.1,"feels":10.6,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791302400000,"dt":"2026-10-06","h":16,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791306000000,"dt":"2026-10-06","h":17,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.8,"feels":9.3,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791309600000,"dt":"2026-10-06","h":18,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10,"feels":8.5,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791313200000,"dt":"2026-10-06","h":19,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":9.2,"feels":7.7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791316800000,"dt":"2026-10-06","h":20,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":8.5,"feels":7,"pop":80,"mm":1.8,"cloud":92,"wind":44,"gust":54,"uv":0},{"utcMs":1791320400000,"dt":"2026-10-06","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.9,"feels":6.4,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791324000000,"dt":"2026-10-06","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.4,"feels":5.9,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0},{"utcMs":1791327600000,"dt":"2026-10-06","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":7.1,"feels":5.6,"pop":15,"mm":0,"cloud":45,"wind":36,"gust":46,"uv":0}]},{"date":"2026-10-07","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":75,"tier":"PRIME","usableDryHours":6,"usableSunnyHours":4,"cond":"SUN_RAIN","desc":"Rain, then sun","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":80,"windowTotalMm":1.8,"windowMaxWind":24,"windowMaxGust":34,"windowAvgCloud":51,"ignoredOffHoursRain":false,"offHoursRangeLabel":"","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:35","sunsetText":"18:50","sunriseHour":7,"sunriseMinute":35,"sunsetHour":18,"sunsetMinute":50,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":11,"endHour":15,"windowScore":87,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":11,"endHour":15,"duration":4,"overlapHours":4,"missedHours":0,"isOutsideWindow":false,"windowScore":87,"allRuns":[{"startHour":8,"endHour":9,"duration":1,"avgScore":87},{"startHour":11,"endHour":15,"duration":4,"avgScore":87},{"startHour":17,"endHour":19,"duration":2,"avgScore":87}],"label":"Best Sun: 4h · 11:00–15:00"},"trend":{"previousScore":75,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791331200000,"dt":"2026-10-07","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11,"feels":10.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791334800000,"dt":"2026-10-07","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791338400000,"dt":"2026-10-07","h":2,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791342000000,"dt":"2026-10-07","h":3,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791345600000,"dt":"2026-10-07","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791349200000,"dt":"2026-10-07","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791352800000,"dt":"2026-10-07","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791356400000,"dt":"2026-10-07","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.8,"feels":14.3,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791360000000,"dt":"2026-10-07","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":1},{"utcMs":1791363600000,"dt":"2026-10-07","h":9,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":16.1,"feels":14.6,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791367200000,"dt":"2026-10-07","h":10,"day":true,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":16.6,"feels":15.1,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791370800000,"dt":"2026-10-07","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":4},{"utcMs":1791374400000,"dt":"2026-10-07","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791378000000,"dt":"2026-10-07","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791381600000,"dt":"2026-10-07","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":5},{"utcMs":1791385200000,"dt":"2026-10-07","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":4},{"utcMs":1791388800000,"dt":"2026-10-07","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":16,"gust":26,"uv":4},{"utcMs":1791392400000,"dt":"2026-10-07","h":17,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":2},{"utcMs":1791396000000,"dt":"2026-10-07","h":18,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":30,"wind":16,"gust":26,"uv":1},{"utcMs":1791399600000,"dt":"2026-10-07","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0},{"utcMs":1791403200000,"dt":"2026-10-07","h":20,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":12.5,"feels":11,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791406800000,"dt":"2026-10-07","h":21,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791410400000,"dt":"2026-10-07","h":22,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":24,"gust":34,"uv":0},{"utcMs":1791414000000,"dt":"2026-10-07","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":16,"gust":26,"uv":0}]},{"date":"2026-10-08","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":87,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":6,"cond":"PARTLY_CLOUDY","desc":"Mostly sunny","isDay":true,"minTemp":16,"maxTemp":17,"minFeels":15,"maxFeels":17,"windowMaxPop":10,"windowTotalMm":0,"windowMaxWind":15,"windowMaxGust":25,"windowAvgCloud":32,"ignoredOffHoursRain":true,"offHoursRangeLabel":"00:00–04:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:36","sunsetText":"18:47","sunriseHour":7,"sunriseMinute":36,"sunsetHour":18,"sunsetMinute":47,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":10,"endHour":14,"windowScore":89,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":10},"bestSunStretch":{"kind":"SUN","startHour":10,"endHour":16,"duration":6,"overlapHours":6,"missedHours":0,"isOutsideWindow":false,"windowScore":89,"allRuns":[{"startHour":10,"endHour":16,"duration":6,"avgScore":89}],"label":"Best Sun: 6h · 10:00–16:00"},"trend":{"previousScore":87,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791417600000,"dt":"2026-10-08","h":0,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11,"feels":9.5,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791421200000,"dt":"2026-10-08","h":1,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.1,"feels":9.6,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791424800000,"dt":"2026-10-08","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.4,"feels":9.9,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791428400000,"dt":"2026-10-08","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.9,"feels":10.4,"pop":80,"mm":1.8,"cloud":92,"wind":23,"gust":33,"uv":0},{"utcMs":1791432000000,"dt":"2026-10-08","h":4,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791435600000,"dt":"2026-10-08","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791439200000,"dt":"2026-10-08","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14,"feels":13.5,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791442800000,"dt":"2026-10-08","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":14.8,"feels":14.3,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791446400000,"dt":"2026-10-08","h":8,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":1},{"utcMs":1791450000000,"dt":"2026-10-08","h":9,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":2},{"utcMs":1791453600000,"dt":"2026-10-08","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791457200000,"dt":"2026-10-08","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791460800000,"dt":"2026-10-08","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":17,"feels":16.5,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791464400000,"dt":"2026-10-08","h":13,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.9,"feels":16.4,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791468000000,"dt":"2026-10-08","h":14,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.6,"feels":16.1,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":5},{"utcMs":1791471600000,"dt":"2026-10-08","h":15,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16.1,"feels":15.6,"pop":10,"mm":0,"cloud":25,"wind":15,"gust":25,"uv":4},{"utcMs":1791475200000,"dt":"2026-10-08","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.5,"feels":15,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":4},{"utcMs":1791478800000,"dt":"2026-10-08","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.8,"feels":14.3,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":2},{"utcMs":1791482400000,"dt":"2026-10-08","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14,"feels":13.5,"pop":10,"mm":0,"cloud":74,"wind":15,"gust":25,"uv":1},{"utcMs":1791486000000,"dt":"2026-10-08","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.2,"feels":12.7,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791489600000,"dt":"2026-10-08","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.5,"feels":12,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791493200000,"dt":"2026-10-08","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.9,"feels":11.4,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791496800000,"dt":"2026-10-08","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.4,"feels":10.9,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0},{"utcMs":1791500400000,"dt":"2026-10-08","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.1,"feels":10.6,"pop":15,"mm":0,"cloud":45,"wind":15,"gust":25,"uv":0}]},{"date":"2026-10-09","startHour":10,"endHour":17,"evaluatedStartHour":10,"evaluatedEndHour":17,"evaluatedHoursCount":7,"windowStatus":"FULL","windowScore":78,"tier":"PRIME","usableDryHours":7,"usableSunnyHours":3,"cond":"PARTLY_CLOUDY","desc":"Sun, then cloud","isDay":true,"minTemp":15,"maxTemp":16,"minFeels":14,"maxFeels":16,"windowMaxPop":15,"windowTotalMm":0,"windowMaxWind":18,"windowMaxGust":28,"windowAvgCloud":56,"ignoredOffHoursRain":true,"offHoursRangeLabel":"02:00–05:00","offHoursMaxPop":80,"fullDayMaxPop":80,"isToday":false,"isWeekend":false,"hasCustomOverride":false,"solar":{"sunriseText":"07:38","sunsetText":"18:45","sunriseHour":7,"sunriseMinute":38,"sunsetHour":18,"sunsetMinute":45,"daylightStartHour":8,"daylightEndHour":19,"sunriseWindowStart":8,"sunriseWindowEnd":10,"daytimeWindowStart":10,"daytimeWindowEnd":17,"sunsetWindowStart":17,"sunsetWindowEnd":19},"bestPocket":{"startHour":8,"endHour":12,"windowScore":84,"tier":"PRIME","allDaylight":true,"daylightCount":4,"usableSunnyHours":4,"windowMaxPop":15},"bestSunStretch":{"kind":"SUN","startHour":8,"endHour":13,"duration":5,"overlapHours":3,"missedHours":2,"isOutsideWindow":true,"windowScore":84,"allRuns":[{"startHour":8,"endHour":13,"duration":5,"avgScore":84}],"label":"Best Sun: 5h · 08:00–13:00 (+2h outside)"},"trend":{"previousScore":78,"delta":0,"direction":"FLAT"},"hours":[{"utcMs":1791504000000,"dt":"2026-10-09","h":0,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10,"feels":9.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791507600000,"dt":"2026-10-09","h":1,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791511200000,"dt":"2026-10-09","h":2,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.4,"feels":8.9,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791514800000,"dt":"2026-10-09","h":3,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":10.9,"feels":9.4,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791518400000,"dt":"2026-10-09","h":4,"day":false,"cond":"RAIN_SHOWERS","desc":"Passing showers","temp":11.5,"feels":10,"pop":80,"mm":1.8,"cloud":92,"wind":26,"gust":36,"uv":0},{"utcMs":1791522000000,"dt":"2026-10-09","h":5,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791525600000,"dt":"2026-10-09","h":6,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791529200000,"dt":"2026-10-09","h":7,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791532800000,"dt":"2026-10-09","h":8,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":1},{"utcMs":1791536400000,"dt":"2026-10-09","h":9,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":2},{"utcMs":1791540000000,"dt":"2026-10-09","h":10,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":4},{"utcMs":1791543600000,"dt":"2026-10-09","h":11,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":4},{"utcMs":1791547200000,"dt":"2026-10-09","h":12,"day":true,"cond":"PARTLY_CLOUDY","desc":"Sunny spells","temp":16,"feels":15.5,"pop":15,"mm":0,"cloud":32,"wind":18,"gust":28,"uv":5},{"utcMs":1791550800000,"dt":"2026-10-09","h":13,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.9,"feels":15.4,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":5},{"utcMs":1791554400000,"dt":"2026-10-09","h":14,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.6,"feels":15.1,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":5},{"utcMs":1791558000000,"dt":"2026-10-09","h":15,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":15.1,"feels":14.6,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":4},{"utcMs":1791561600000,"dt":"2026-10-09","h":16,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":14.5,"feels":14,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":4},{"utcMs":1791565200000,"dt":"2026-10-09","h":17,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13.8,"feels":13.3,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":2},{"utcMs":1791568800000,"dt":"2026-10-09","h":18,"day":true,"cond":"CLOUDY","desc":"Overcast & dry","temp":13,"feels":12.5,"pop":15,"mm":0,"cloud":74,"wind":18,"gust":28,"uv":1},{"utcMs":1791572400000,"dt":"2026-10-09","h":19,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":12.2,"feels":11.7,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791576000000,"dt":"2026-10-09","h":20,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":11.5,"feels":11,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791579600000,"dt":"2026-10-09","h":21,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.9,"feels":10.4,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791583200000,"dt":"2026-10-09","h":22,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.4,"feels":9.9,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0},{"utcMs":1791586800000,"dt":"2026-10-09","h":23,"day":false,"cond":"CLEAR_NIGHT","desc":"Clear & dry","temp":10.1,"feels":9.6,"pop":15,"mm":0,"cloud":45,"wind":18,"gust":28,"uv":0}]}]}}</script>
   <script>
   (function () {
     var STORAGE_KEYS = {
@@ -2423,14 +2667,20 @@
         var rawCached = localStorage.getItem(STORAGE_KEYS.CACHED_STATE);
         if (rawCached) {
           var cached = JSON.parse(rawCached);
-          if (
-            cached &&
-            cached.forecast &&
-            (!AppState.forecast ||
-              (AppState.forecast.source === 'mock_dublin' && cached.forecast.source !== 'mock_dublin'))
-          ) {
-            AppState.forecast = cached.forecast;
+          if (cached && typeof cached === 'object') {
+            if (cached.hasApiKey !== undefined) AppState.hasApiKey = Boolean(cached.hasApiKey);
+            if (cached.hasPasskey !== undefined) AppState.hasPasskey = Boolean(cached.hasPasskey);
+            if (
+              cached.forecast &&
+              (!AppState.forecast ||
+                (AppState.forecast.source === 'mock_dublin' && cached.forecast.source !== 'mock_dublin'))
+            ) {
+              AppState.forecast = cached.forecast;
+            }
           }
+        }
+        if (localStorage.getItem(STORAGE_KEYS.PASSKEY_ID)) {
+          AppState.hasPasskey = true;
         }
         var rawPrefs = localStorage.getItem(STORAGE_KEYS.WINDOW_PREFS);
         if (rawPrefs) {
@@ -2470,6 +2720,8 @@
 
     function applyBackgroundServerState(serverRes) {
       if (!serverRes) return;
+      if (serverRes.hasApiKey !== undefined) AppState.hasApiKey = Boolean(serverRes.hasApiKey);
+      if (serverRes.hasPasskey !== undefined) AppState.hasPasskey = Boolean(serverRes.hasPasskey);
       if (serverRes.authorized === false) {
         AppState.adminToken = '';
         try {
@@ -2479,8 +2731,6 @@
       }
       if (!serverRes.ok) return;
       AppState.version = serverRes.version || AppState.version;
-      AppState.hasApiKey = Boolean(serverRes.hasApiKey);
-      AppState.hasPasskey = Boolean(serverRes.hasPasskey);
       if (!AppState._userModifiedDraft && !AppState._hasLocalPrefs && serverRes.config) {
         Object.assign(AppState.config, serverRes.config);
       }
@@ -3215,14 +3465,63 @@
         });
     }
 
+    var sessionThemeOverride = null;
+
+    function applySystemTheme() {
+      try { localStorage.removeItem(S.STORAGE_KEYS.THEME); } catch (_e) {}
+      if (sessionThemeOverride) {
+        document.documentElement.setAttribute('data-theme', sessionThemeOverride);
+        return;
+      }
+      var isLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+    }
+
+    function isWebAuthnSupported() {
+      return Boolean(
+        typeof window !== 'undefined' &&
+          window.PublicKeyCredential &&
+          navigator.credentials &&
+          typeof navigator.credentials.create === 'function' &&
+          typeof navigator.credentials.get === 'function'
+      );
+    }
+
+    function bufferToBase64Url(buffer) {
+      var bytes = new Uint8Array(buffer);
+      var binary = '';
+      for (var i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function base64UrlToUint8Array(base64Url) {
+      var padding = '='.repeat((4 - (base64Url.length % 4)) % 4);
+      var base64 = (base64Url + padding).replace(/-/g, '+').replace(/_/g, '/');
+      var rawData = atob(base64);
+      var outputArray = new Uint8Array(rawData.length);
+      for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
     function syncLockScreenVisibility() {
       var lockEl = document.getElementById('ss-lock-screen');
+      var passkeyBtn = document.getElementById('ss-unlock-passkey-btn');
       var isUnlocked = Boolean(AppState.adminToken);
       if (lockEl) {
         lockEl.classList.toggle('open', !isUnlocked);
       }
       if (document.body) {
         document.body.classList.toggle('is-locked', !isUnlocked);
+      }
+      if (passkeyBtn) {
+        var localCred = '';
+        try { localCred = localStorage.getItem(S.STORAGE_KEYS.PASSKEY_ID) || ''; } catch (_e) {}
+        var canUsePasskey = isWebAuthnSupported() && (AppState.hasPasskey || Boolean(localCred));
+        passkeyBtn.hidden = !canUsePasskey;
       }
       if (!isUnlocked) {
         var pinInput = document.getElementById('ss-unlock-pin-input');
@@ -3232,13 +3531,25 @@
       }
     }
 
+    function handleAuthUnlockSuccess(token, statusEl) {
+      AppState.adminToken = token;
+      try {
+        localStorage.setItem(S.STORAGE_KEYS.ADMIN_TOKEN, token);
+      } catch (_e) {}
+      var pinInput = document.getElementById('ss-unlock-pin-input');
+      if (pinInput) pinInput.value = '';
+      if (statusEl) statusEl.textContent = '';
+      syncLockScreenVisibility();
+      syncWithServer({ forceRefresh: false });
+    }
+
     function submitUnlockPin() {
       var pinInput = document.getElementById('ss-unlock-pin-input');
       var statusEl = document.getElementById('ss-unlock-status');
       var submitBtn = document.getElementById('ss-unlock-submit-btn');
       var pinVal = pinInput ? pinInput.value.trim() : '';
       if (!pinVal) {
-        if (statusEl) statusEl.textContent = 'Please enter your 4-digit PIN.';
+        if (statusEl) statusEl.textContent = 'Please enter your Access PIN or Passcode.';
         return;
       }
       if (statusEl) {
@@ -3250,14 +3561,7 @@
       function handlePinResult(res) {
         if (submitBtn) submitBtn.disabled = false;
         if (res && res.ok && res.token) {
-          AppState.adminToken = res.token;
-          try {
-            localStorage.setItem(S.STORAGE_KEYS.ADMIN_TOKEN, res.token);
-          } catch (_e) {}
-          if (pinInput) pinInput.value = '';
-          if (statusEl) statusEl.textContent = '';
-          syncLockScreenVisibility();
-          syncWithServer({ forceRefresh: false });
+          handleAuthUnlockSuccess(res.token, statusEl);
         } else {
           if (statusEl) {
             statusEl.style.color = 'var(--score-poor)';
@@ -3284,6 +3588,206 @@
       }
     }
 
+    function unlockWithPasskey() {
+      var statusEl = document.getElementById('ss-unlock-status');
+      var passkeyBtn = document.getElementById('ss-unlock-passkey-btn');
+      if (!isWebAuthnSupported()) {
+        if (statusEl) statusEl.textContent = 'Passkeys are not supported in this browser view.';
+        return;
+      }
+
+      var challenge = new Uint8Array(32);
+      window.crypto.getRandomValues(challenge);
+      var localCredId = '';
+      try { localCredId = localStorage.getItem(S.STORAGE_KEYS.PASSKEY_ID) || ''; } catch (_e) {}
+
+      var publicKeyOpts = {
+        challenge: challenge,
+        userVerification: 'preferred',
+        timeout: 60000
+      };
+      if (localCredId) {
+        try {
+          publicKeyOpts.allowCredentials = [
+            {
+              type: 'public-key',
+              id: base64UrlToUint8Array(localCredId)
+            }
+          ];
+        } catch (_e) {}
+      }
+
+      if (statusEl) {
+        statusEl.style.color = 'var(--accent-sky)';
+        statusEl.textContent = 'Waiting for Passkey verification...';
+      }
+      if (passkeyBtn) passkeyBtn.disabled = true;
+
+      navigator.credentials
+        .get({ publicKey: publicKeyOpts })
+        .catch(function (err) {
+          // If local credential hint didn't match this device, retry with discoverable credentials
+          if (publicKeyOpts.allowCredentials && publicKeyOpts.allowCredentials.length) {
+            delete publicKeyOpts.allowCredentials;
+            return navigator.credentials.get({ publicKey: publicKeyOpts });
+          }
+          throw err;
+        })
+        .then(function (assertion) {
+          if (!assertion || !assertion.rawId) {
+            throw new Error('No passkey assertion returned.');
+          }
+          var credId = bufferToBase64Url(assertion.rawId);
+
+          function handlePasskeyServerRes(res) {
+            if (passkeyBtn) passkeyBtn.disabled = false;
+            if (res && res.ok && res.token) {
+              try { localStorage.setItem(S.STORAGE_KEYS.PASSKEY_ID, credId); } catch (_e) {}
+              handleAuthUnlockSuccess(res.token, statusEl);
+            } else {
+              if (statusEl) {
+                statusEl.style.color = 'var(--score-poor)';
+                statusEl.textContent = (res && res.message) || 'Passkey not recognized.';
+              }
+            }
+          }
+
+          function handlePasskeyServerErr() {
+            if (passkeyBtn) passkeyBtn.disabled = false;
+            if (statusEl) {
+              statusEl.style.color = 'var(--score-poor)';
+              statusEl.textContent = 'Could not reach server to verify Passkey.';
+            }
+          }
+
+          if (typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run
+              .withSuccessHandler(handlePasskeyServerRes)
+              .withFailureHandler(handlePasskeyServerErr)
+              .verifyPasskey(credId);
+          } else {
+            callStandaloneRpc(
+              'verifyPasskey',
+              { credentialId: credId },
+              '',
+              'pk-unlock-' + Date.now(),
+              handlePasskeyServerRes,
+              handlePasskeyServerErr
+            );
+          }
+        })
+        .catch(function () {
+          if (passkeyBtn) passkeyBtn.disabled = false;
+          if (statusEl) {
+            statusEl.style.color = 'var(--text-muted)';
+            statusEl.textContent = 'Passkey sign-in cancelled or unavailable. You can always unlock with your PIN.';
+          }
+        });
+    }
+
+    function registerDevicePasskey() {
+      var msgEl = document.getElementById('cfg-modal-status');
+      var regBtn = document.getElementById('cfg-register-passkey-btn');
+      if (!isWebAuthnSupported()) {
+        if (msgEl) {
+          msgEl.style.color = 'var(--score-poor)';
+          msgEl.textContent = 'WebAuthn Passkeys require the standalone HTTPS PWA (sage-syntax.github.io).';
+        }
+        return;
+      }
+
+      var challenge = new Uint8Array(32);
+      var userId = new Uint8Array(16);
+      window.crypto.getRandomValues(challenge);
+      window.crypto.getRandomValues(userId);
+
+      if (msgEl) {
+        msgEl.style.color = 'var(--accent-sky)';
+        msgEl.textContent = 'Follow your browser or device prompt to create a Passkey...';
+      }
+      if (regBtn) regBtn.disabled = true;
+
+      navigator.credentials
+        .create({
+          publicKey: {
+            challenge: challenge,
+            rp: {
+              name: 'SunScout Weather'
+            },
+            user: {
+              id: userId,
+              name: 'sunscout-admin',
+              displayName: 'SunScout Admin'
+            },
+            pubKeyCredParams: [
+              { type: 'public-key', alg: -7 },
+              { type: 'public-key', alg: -257 }
+            ],
+            authenticatorSelection: {
+              userVerification: 'preferred',
+              residentKey: 'preferred'
+            },
+            timeout: 60000
+          }
+        })
+        .then(function (cred) {
+          if (!cred || !cred.rawId) {
+            throw new Error('Passkey creation returned no credential.');
+          }
+          var credId = bufferToBase64Url(cred.rawId);
+          var reqId = 'pk-reg-' + Date.now();
+          var payload = { registerPasskeyId: credId };
+
+          function onSaved(res) {
+            if (regBtn) regBtn.disabled = false;
+            if (res && res.ok) {
+              AppState.hasPasskey = true;
+              if (res.token) {
+                AppState.adminToken = res.token;
+                try { localStorage.setItem(S.STORAGE_KEYS.ADMIN_TOKEN, res.token); } catch (_e) {}
+              }
+              try { localStorage.setItem(S.STORAGE_KEYS.PASSKEY_ID, credId); } catch (_e) {}
+              S.saveCachedState();
+              refreshSettingsModalBadges();
+              syncLockScreenVisibility();
+              if (msgEl) {
+                msgEl.style.color = 'var(--tier-prime-text)';
+                msgEl.textContent = 'Passkey registered and synced to Google Sheet!';
+              }
+            } else {
+              if (msgEl) {
+                msgEl.style.color = 'var(--score-poor)';
+                msgEl.textContent = (res && res.message) || 'Could not save Passkey to server.';
+              }
+            }
+          }
+
+          function onFailed() {
+            if (regBtn) regBtn.disabled = false;
+            if (msgEl) {
+              msgEl.style.color = 'var(--score-poor)';
+              msgEl.textContent = 'Failed to sync Passkey to Google Sheet.';
+            }
+          }
+
+          if (typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run
+              .withSuccessHandler(onSaved)
+              .withFailureHandler(onFailed)
+              .saveWindowConfig(payload, AppState.adminToken, reqId);
+          } else {
+            callStandaloneRpc('saveWindowConfig', payload, AppState.adminToken, reqId, onSaved, onFailed);
+          }
+        })
+        .catch(function () {
+          if (regBtn) regBtn.disabled = false;
+          if (msgEl) {
+            msgEl.style.color = 'var(--text-muted)';
+            msgEl.textContent = 'Passkey registration was cancelled.';
+          }
+        });
+    }
+
     function lockCurrentDevice() {
       AppState.adminToken = '';
       try {
@@ -3292,6 +3796,21 @@
       } catch (_e) {}
       closeSettingsModal();
       syncLockScreenVisibility();
+    }
+
+    function fetchServerMetadataIfLocked() {
+      if (AppState.adminToken) return;
+      function handleMeta(res) {
+        if (!res || !res.ok) return;
+        if (res.hasApiKey !== undefined) AppState.hasApiKey = Boolean(res.hasApiKey);
+        if (res.hasPasskey !== undefined) AppState.hasPasskey = Boolean(res.hasPasskey);
+        syncLockScreenVisibility();
+      }
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(handleMeta).getInitialState({}, '');
+      } else {
+        callStandaloneRpc('getInitialState', {}, '', 'meta-' + Date.now(), handleMeta);
+      }
     }
 
     function syncWithServer(params) {
@@ -3338,6 +3857,55 @@
       }
     }
 
+    function refreshSettingsModalBadges() {
+      var quotaEl = document.getElementById('cfg-quota-badge');
+      var apiKeyPill = document.getElementById('cfg-apikey-status-pill');
+      var apiKeyInput = document.getElementById('cfg-api-key');
+      var passkeyBadge = document.getElementById('cfg-passkey-badge');
+      var passkeyBtn = document.getElementById('cfg-register-passkey-btn');
+      var passkeyHint = document.getElementById('cfg-passkey-hint');
+
+      if (quotaEl) {
+        var q = AppState.forecast && AppState.forecast.quota;
+        if (q && q.dayLimit) {
+          quotaEl.textContent = q.dayUsed + '/' + q.dayLimit + ' d · ' + q.monthUsed + '/' + q.monthLimit + ' mo';
+        } else {
+          quotaEl.textContent = '0/240 d · 0/7,500 mo';
+        }
+      }
+
+      var isLiveKey = Boolean(
+        AppState.hasApiKey ||
+          (AppState.forecast && String(AppState.forecast.source || '').indexOf('google_weather_api') === 0)
+      );
+      if (apiKeyPill) {
+        apiKeyPill.textContent = isLiveKey ? 'Active' : 'Demo Stream';
+        apiKeyPill.classList.toggle('is-active', isLiveKey);
+      }
+      if (apiKeyInput) {
+        apiKeyInput.value = '';
+        apiKeyInput.placeholder = isLiveKey
+          ? 'Configured (••••) — enter new key to replace'
+          : 'AIza...';
+      }
+
+      var localCred = '';
+      try { localCred = localStorage.getItem(S.STORAGE_KEYS.PASSKEY_ID) || ''; } catch (_e) {}
+      var hasPk = Boolean(AppState.hasPasskey || localCred);
+      if (passkeyBadge) {
+        passkeyBadge.textContent = hasPk ? 'Enabled' : 'Not set';
+        passkeyBadge.classList.toggle('is-active', hasPk);
+      }
+      if (passkeyBtn) {
+        var supported = isWebAuthnSupported();
+        passkeyBtn.disabled = !supported;
+        passkeyBtn.textContent = hasPk ? 'Add Device Passkey' : 'Register Passkey';
+        if (!supported && passkeyHint) {
+          passkeyHint.textContent = 'Open the standalone PWA (sage-syntax.github.io) to register a WebAuthn Passkey.';
+        }
+      }
+    }
+
     function openSettingsModal() {
       var modal = document.getElementById('ss-settings-modal');
       if (!modal) return;
@@ -3345,23 +3913,17 @@
       var windEl = document.getElementById('cfg-max-wind');
       var pinEl = document.getElementById('cfg-admin-pin');
       var msgEl = document.getElementById('cfg-modal-status');
-      var quotaEl = document.getElementById('cfg-quota-badge');
       if (popEl) popEl.value = AppState.config.MAX_RAIN_POP_PCT;
       if (windEl) windEl.value = AppState.config.MAX_WIND_KMH;
       if (pinEl) {
         pinEl.value = '';
-        pinEl.placeholder = AppState.adminToken ? 'Unlocked (optional)' : '4-digit PIN';
+        pinEl.placeholder = 'Leave blank to keep current PIN';
       }
-      if (msgEl) msgEl.textContent = '';
-      if (quotaEl) {
-        var q = AppState.forecast && AppState.forecast.quota;
-        if (q && q.dayLimit) {
-          quotaEl.textContent =
-            'Quota: ' + q.dayUsed + '/' + q.dayLimit + ' d · ' + q.monthUsed + '/' + q.monthLimit + ' mo';
-        } else {
-          quotaEl.textContent = 'Quota: 0/240 d · 0/7,500 mo';
-        }
+      if (msgEl) {
+        msgEl.style.color = 'var(--accent-sky)';
+        msgEl.textContent = '';
       }
+      refreshSettingsModalBadges();
       modal.classList.add('open');
     }
 
@@ -3374,6 +3936,20 @@
       AppState._userModifiedDraft = true;
       var popEl = document.getElementById('cfg-max-pop');
       var windEl = document.getElementById('cfg-max-wind');
+      var pinEl = document.getElementById('cfg-admin-pin');
+      var apiKeyEl = document.getElementById('cfg-api-key');
+      var msgEl = document.getElementById('cfg-modal-status');
+      var newPinVal = pinEl ? pinEl.value.trim() : '';
+      var apiKeyVal = apiKeyEl ? apiKeyEl.value.trim() : '';
+
+      if (newPinVal && (newPinVal.length < 4 || newPinVal.length > 64)) {
+        if (msgEl) {
+          msgEl.style.color = 'var(--score-poor)';
+          msgEl.textContent = 'New Access PIN / Passcode must be between 4 and 64 characters.';
+        }
+        return;
+      }
+
       if (popEl) AppState.config.MAX_RAIN_POP_PCT = Number(popEl.value) || 40;
       if (windEl) AppState.config.MAX_WIND_KMH = Number(windEl.value) || 35;
 
@@ -3381,47 +3957,55 @@
       S.saveLocalPrefs();
       renderAll();
 
-      var pinEl = document.getElementById('cfg-admin-pin');
-      var apiKeyEl = document.getElementById('cfg-api-key');
-      var msgEl = document.getElementById('cfg-modal-status');
-      var pinVal = pinEl ? pinEl.value.trim() : '';
-      var apiKeyVal = apiKeyEl ? apiKeyEl.value.trim() : '';
-
-      if (apiKeyVal && !pinVal && !AppState.adminToken) {
-        if (msgEl) msgEl.textContent = 'Saved thresholds on this device. Enter your 4-digit Admin PIN above to also save the API Key to the cloud.';
-        return;
-      }
-
-      if (!pinVal && !apiKeyVal) {
+      if (!AppState.adminToken && !newPinVal && !apiKeyVal) {
         closeSettingsModal();
         return;
       }
 
       var payload = Object.assign({}, AppState.config, {
-        pin: pinVal,
+        newPin: newPinVal,
         apiKey: apiKeyVal
       });
       var reqId = 'ui-' + Date.now();
 
       function handleSaveSuccess(res) {
         if (res && res.ok) {
-          if (msgEl) msgEl.textContent = 'Saved on this device & synced to Google Sheet.';
+          if (res.token) {
+            AppState.adminToken = res.token;
+            try { localStorage.setItem(S.STORAGE_KEYS.ADMIN_TOKEN, res.token); } catch (_e) {}
+          }
+          if (res.hasApiKey !== undefined) AppState.hasApiKey = Boolean(res.hasApiKey);
+          if (res.hasPasskey !== undefined) AppState.hasPasskey = Boolean(res.hasPasskey);
+          S.saveCachedState();
+          refreshSettingsModalBadges();
+          if (msgEl) {
+            msgEl.style.color = 'var(--tier-prime-text)';
+            msgEl.textContent = newPinVal
+              ? 'Updated PIN & synced settings to Google Sheet!'
+              : 'Saved on this device & synced to Google Sheet.';
+          }
           if (apiKeyVal) {
             syncWithServer({ forceRefresh: true });
           }
           setTimeout(closeSettingsModal, 600);
         } else {
-          if (msgEl) msgEl.textContent = (res && res.message) || 'Authentication failed.';
+          if (msgEl) {
+            msgEl.style.color = 'var(--score-poor)';
+            msgEl.textContent = (res && res.message) || 'Could not save settings.';
+          }
         }
       }
 
+      if (msgEl) {
+        msgEl.style.color = 'var(--accent-sky)';
+        msgEl.textContent = 'Saving to Google Sheet Config...';
+      }
+
       if (typeof google !== 'undefined' && google.script && google.script.run) {
-        if (msgEl) msgEl.textContent = 'Saving to Google Sheet Config...';
         google.script.run
           .withSuccessHandler(handleSaveSuccess)
           .saveWindowConfig(payload, AppState.adminToken, reqId);
       } else {
-        if (msgEl) msgEl.textContent = 'Saving to Google Sheet Config...';
         callStandaloneRpc(
           'saveWindowConfig',
           payload,
@@ -3429,7 +4013,11 @@
           reqId,
           handleSaveSuccess,
           function () {
-            if (msgEl) msgEl.textContent = 'Saved on this device (authorize the GAS Web App URL once in your browser to enable cloud sync).';
+            if (msgEl) {
+              msgEl.style.color = 'var(--text-muted)';
+              msgEl.textContent = 'Saved thresholds on this device.';
+            }
+            setTimeout(closeSettingsModal, 600);
           }
         );
       }
@@ -3443,6 +4031,12 @@
 
       if (action === 'submit-unlock-pin') {
         submitUnlockPin();
+        return;
+      } else if (action === 'unlock-passkey') {
+        unlockWithPasskey();
+        return;
+      } else if (action === 'register-passkey') {
+        registerDevicePasskey();
         return;
       } else if (action === 'lock-device') {
         lockCurrentDevice();
@@ -3535,8 +4129,8 @@
       } else if (action === 'toggle-theme') {
         var root = document.documentElement;
         var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        sessionThemeOverride = next;
         root.setAttribute('data-theme', next);
-        try { localStorage.setItem(S.STORAGE_KEYS.THEME, next); } catch (_err) {}
       }
     });
 
@@ -3544,6 +4138,10 @@
       if (e.key === 'Enter' && e.target && e.target.id === 'ss-unlock-pin-input') {
         e.preventDefault();
         submitUnlockPin();
+        return;
+      }
+      if (e.key === 'Escape') {
+        closeSettingsModal();
         return;
       }
       if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -3558,10 +4156,15 @@
     });
 
     window.addEventListener('DOMContentLoaded', function () {
-      try {
-        var savedTheme = localStorage.getItem(S.STORAGE_KEYS.THEME);
-        if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-      } catch (_e) {}
+      applySystemTheme();
+      if (window.matchMedia) {
+        var mq = window.matchMedia('(prefers-color-scheme: light)');
+        if (typeof mq.addEventListener === 'function') {
+          mq.addEventListener('change', function () {
+            if (!sessionThemeOverride) applySystemTheme();
+          });
+        }
+      }
 
       var ssrState = window.__SUNSCOUT_INITIAL_STATE__ || null;
       if (!ssrState) {
@@ -3579,6 +4182,7 @@
       if (!AppState.adminToken) {
         var statusEl = document.getElementById('ff-cache-status-label');
         if (statusEl) statusEl.textContent = 'Locked · Enter PIN to sync';
+        fetchServerMetadataIfLocked();
         return;
       }
 
