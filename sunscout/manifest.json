@@ -1,0 +1,17 @@
+{
+  "name": "SunScout",
+  "short_name": "SunScout",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#090f1d",
+  "theme_color": "#090f1d",
+  "icons": [
+    {
+      "src": "/assets/images/icon-sunscout.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
