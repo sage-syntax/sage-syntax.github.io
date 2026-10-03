@@ -1,5 +1,6 @@
 // SunScout Service Worker (PROD v1.0.0)
-const CACHE_NAME = 'sunscout-prod-v1.0.0';
+const CACHE_NAME = 'ff-sunscout-cache-v1.0.0';
+const CACHE_PREFIX = 'ff-sunscout-cache-';
 const ASSETS = ['./', './index.html', './manifest.json', '/assets/images/sunscout/icon-sunscout.svg', '/assets/images/sunscout/icon-sunscout-180.png'];
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -8,7 +9,11 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k.startsWith('sunscout-prod-') && k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter((k) => (k.startsWith(CACHE_PREFIX) || k.startsWith('sunscout-prod-')) && k !== CACHE_NAME)
+          .map((k) => caches.delete(k))
+      )
     )
   );
 });
