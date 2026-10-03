@@ -1,9 +1,10 @@
 {
+  "id": "/sunscout/dev/",
   "name": "SunScout [DEV]",
   "short_name": "SunScout DEV",
   "description": "Daylight-aware window weather scoring and best sunny pocket finder",
   "start_url": "./index.html",
-  "scope": "./",
+  "scope": "/sunscout/dev/",
   "display": "standalone",
   "background_color": "#090f1d",
   "theme_color": "#090f1d",

@@ -1,5 +1,6 @@
-// SunScout Service Worker (DEV v1.0.0)
-const CACHE_NAME = 'sunscout-dev-v1.0.0';
+// SunScout Service Worker (DEV dev-v1)
+const CACHE_NAME = 'ff-sunscout-dev-cache-v1';
+const CACHE_PREFIX = 'ff-sunscout-dev-cache-v';
 const ASSETS = ['./', './index.html', './manifest.json', '/assets/images/sunscout/icon-sunscout-dev.svg', '/assets/images/sunscout/icon-sunscout-dev-180.png'];
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -8,7 +9,11 @@ self.addEventListener('install', (e) => {
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k.startsWith('sunscout-dev-') && k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter((k) => (k.startsWith(CACHE_PREFIX) || k.startsWith('sunscout-dev-')) && k !== CACHE_NAME)
+          .map((k) => caches.delete(k))
+      )
     )
   );
 });
