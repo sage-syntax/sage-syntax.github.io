@@ -1,5 +1,5 @@
-// SunScout Service Worker (DEV dev-v9)
-const CACHE_NAME = 'ff-sunscout-dev-cache-v9';
+// SunScout Service Worker (DEV dev-v10)
+const CACHE_NAME = 'ff-sunscout-dev-cache-v10';
 const CACHE_PREFIX = 'ff-sunscout-dev-cache-v';
 const ASSETS = ['./', './index.html', './manifest.json', '/assets/images/sunscout/icon-sunscout-dev.svg', '/assets/images/sunscout/icon-sunscout-dev-180.png'];
 self.addEventListener('install', (e) => {
